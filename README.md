@@ -68,27 +68,6 @@ json
 }
 View sent messages by clicking on the "View Sent Messages" button. The app will fetch messages stored in messages.json.
 
-
-Project Structure
-
-QuickMessenger-AI-Chat/
-│
-├── chatbot_project/           # Django project folder
-│   ├── chatbot/               # Core app files
-│   │   ├── templates/         # HTML files
-│   │   ├── static/            # CSS, JS, images
-│   │   ├── views.py           # Core logic
-│   │   └── ...                
-│   └── ...
-│
-├── venv/                      # Virtual environment (excluded from Git)
-├── requirements.txt           # List of dependencies
-├── users.json                 # Sample user data
-├── messages.json              # Sent messages storage
-└── README.md                  # Project documentation
-
-
-
 Usage Example
 
 Send a Message:
