@@ -70,8 +70,7 @@ View sent messages by clicking on the "View Sent Messages" button. The app will 
 
 
 Project Structure
-csharp
-Copy code
+
 QuickMessenger-AI-Chat/
 │
 ├── chatbot_project/           # Django project folder
@@ -87,6 +86,7 @@ QuickMessenger-AI-Chat/
 ├── users.json                 # Sample user data
 ├── messages.json              # Sent messages storage
 └── README.md                  # Project documentation
+
 
 
 Usage Example
