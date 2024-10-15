@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futuristic Chatbot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-top: 20px;
+            color: #00ffcc;
+        }
+
+        #chat-container {
+            width: 80%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+
+        #messageForm {
+            display: flex;
+            flex-direction: column;
+        }
+
+        textarea {
+            resize: none;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            margin-bottom: 10px;
+            height: 100px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #00ffcc;
+            color: #121212;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #00e6b3;
+        }
+
+        #history-buttons {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .history-button {
+            background-color: #00b3b3;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .history-button:hover {
+            background-color: #009999;
+        }
+
+        #status {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        #response {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            display: none;
+        }
+
+        .message-history,
+        .forwarded-messages {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .message-history h2,
+        .forwarded-messages h2 {
+            color: #00ffcc;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #1a1a1a;
+        }
+
+        .sender {
+            background-color: #007acc;
+        }
+
+        .ai-response {
+            background-color: #ff6600;
+        }
+
+        /* Style for the "View Sent Messages" button */
+        #view-messages {
+            background-color: #4CAF50;
+            /* Green background */
+            color: white;
+            /* White text */
+            padding: 10px 20px;
+            /* Padding for a better look */
+            font-size: 16px;
+            /* Slightly larger text */
+            border: none;
+            /* Remove default borders */
+            border-radius: 5px;
+            /* Rounded corners */
+            cursor: pointer;
+            /* Pointer cursor on hover */
+            transition: background-color 0.3s ease;
+            /* Smooth transition */
+            margin-top: 20px;
+            /* Spacing from other elements */
+        }
+
+        /* Change background color when hovering over the button */
+        #view-messages:hover {
+            background-color: #45a049;
+            /* Darker green */
+        }
+
+        /* Container for displaying sent messages */
+        #sent-messages-container {
+            background-color: #f9f9f9;
+            /* Light grey background */
+            padding: 15px;
+            /* Padding inside the container */
+            margin-top: 20px;
+            /* Space above the container */
+            border: 1px solid #ddd;
+            /* Light border */
+            border-radius: 5px;
+            /* Rounded corners */
+            max-width: 600px;
+            /* Maximum width of the container */
+            overflow-y: auto;
+            /* Scroll if content exceeds container */
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            /* Subtle shadow for depth */
+        }
+
+        /* Style for each recipient block */
+        #sent-messages-container h3 {
+            color: #333;
+            /* Dark text for headings */
+            font-size: 18px;
+            /* Adjusted font size */
+            border-bottom: 1px solid #ccc;
+            /* Line under each heading */
+            padding-bottom: 5px;
+            /* Spacing under the heading */
+            margin-top: 10px;
+            /* Spacing above the heading */
+        }
+
+        /* Style for individual messages */
+        #sent-messages-container p {
+            background-color: #e9f7ef;
+            /* Light green background */
+            padding: 8px;
+            /* Padding around messages */
+            border-radius: 5px;
+            /* Rounded corners */
+            margin: 5px 0;
+            /* Vertical spacing between messages */
+            color: #333;
+            /* Dark text color */
+        }
+    </style>
+</head>
+
+<body>
+    <h1>QuickMessenger AI Chat By Raj</h1>
+    <div id="chat-container">
+        <form id="messageForm">
+            {% csrf_token %}
+            <textarea name="message" rows="4"
+                placeholder="Type your message. Add 'send to [name]' if sending to a specific person."></textarea>
+            <button type="submit">Send Message</button>
+            <div id="history-buttons">
+                <button type="button" class="history-button" id="view-history">History (AI Responses)</button>
+                <a id="view-messages" href="/chatbot/get_sent_messages/" target="_blank">View Sent Messages</a>
+                <div id="sent-messages-container"></div>
+        </form>
+        <p id="status"></p>
+        <p id="response"></p>
+    </div>
+
+    <div class="message-history" id="messageHistory">
+        <h2>AI Responses</h2>
+        <div id="aiMessagesContainer"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#messageForm').on('submit', async function (event) {
+                event.preventDefault();
+                const formData = new FormData(this);
+                const messageText = formData.get('message');
+
+                // Send the message to the server
+                const response = await fetch('/chatbot/send_message/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ message: messageText })
+                });
+
+                const result = await response.json();
+                document.getElementById('status').innerText = result.status;
+
+                // Show response message if any
+                if (result.response) {
+                    document.getElementById('response').innerText = "Chatbot: " + result.response;
+                    appendMessage("Chatbot: " + result.response, "ai-response");
+                } else {
+                    document.getElementById('response').innerText = '';
+                }
+            });
+
+            $('#view-history').on('click', function () {
+                $('#messageHistory').toggle();
+                loadAIResponses();
+            });
+
+            $('#view-forwarded').on('click', function () {
+                $('#forwardedMessages').toggle();
+                loadForwardedMessages();
+            });
+
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            function appendMessage(message, type) {
+                const messageContainer = document.createElement('div');
+                messageContainer.classList.add('message', type);
+                messageContainer.innerText = message;
+                document.getElementById('aiMessagesContainer').appendChild(messageContainer);
+            }
+
+            async function loadAIResponses() {
+                const response = await fetch('/chatbot/load_ai_responses/');
+                const data = await response.json();
+                const container = document.getElementById('aiMessagesContainer');
+                container.innerHTML = '';  // Clear previous messages
+                data.forEach(item => {
+                    appendMessage(item.question + "\n" + item.response, "ai-response");
+                });
+            }
+
+            async function loadForwardedMessages() {
+                const response = await fetch('/chatbot/load_forwarded_messages/');
+                const data = await response.json();
+                const container = document.getElementById('forwardedMessagesContainer');
+                container.innerHTML = '';  // Clear previous messages
+                data.forEach(item => {
+                    const messageContainer = document.createElement('div');
+                    messageContainer.classList.add('message', 'sender');
+                    messageContainer.innerText = item.recipient + ": " + item.message;
+                    container.appendChild(messageContainer);
+                });
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>
